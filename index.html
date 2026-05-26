@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard LP · PERÚ 2026 · UTEL Universidad</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:#F8F8F8;color:#111;min-height:100vh}
+/* HEADER */
+.header{background:#06b706;padding:0 24px;display:flex;align-items:center;gap:16px;height:72px;border-bottom:3px solid #000}
+.header-logo{height:48px;width:auto;filter:brightness(0) invert(1)}
+.header-title{flex:1;text-align:center;font-size:20px;font-weight:800;color:#fff;letter-spacing:1px;text-transform:uppercase}
+.header-badge{background:#ffb937;color:#000;font-weight:700;font-size:13px;padding:6px 14px;border-radius:4px;border:2px solid #000;white-space:nowrap}
+/* NAV TABS */
+.nav{background:#000;display:flex;overflow-x:auto;border-bottom:3px solid #ffb937}
+.nav-btn{background:none;border:none;color:#ccc;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:12px 18px;cursor:pointer;white-space:nowrap;border-right:1px solid #222;transition:all .2s}
+.nav-btn:hover,.nav-btn.active{background:#06b706;color:#fff}
+/* VIEWS */
+.view{display:none;padding:20px}
+.view.active{display:block}
+/* FILTERS */
+.filters{background:#fff;border:none;box-shadow:0 1px 8px rgba(0,0,0,.07);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:130px}
+.filter-group label{font-size:10px;font-weight:700;text-transform:uppercase;color:#555}
+.filter-group select,.filter-group input{border:1.5px solid #ddd;border-radius:10px;padding:5px 8px;font-family:'Sora',sans-serif;font-size:12px;background:#fff}
+.btn-clear{background:#ffb937;border:none;border-radius:10px;padding:6px 14px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.btn-clear:hover{background:#e6a820}
+/* KPI CARDS */
+.kpi-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.kpi-card{background:#fff;border:none;box-shadow:0 1px 8px rgba(0,0,0,.07);border-radius:16px;padding:12px 16px;flex:1;min-width:110px;text-align:center}
+.kpi-card .kpi-val{font-size:20px;font-weight:800;color:#06b706;line-height:1}
+.kpi-card .kpi-lbl{font-size:10px;font-weight:600;color:#555;margin-top:4px;text-transform:uppercase}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border:2px solid #000;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+thead{background:#000;color:#fff}
+th{padding:9px 10px;text-align:left;font-weight:700;font-size:11px;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #e0e0e0;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f0ffe0}
+/* BADGES */
+.badge{display:inline-block;border-radius:3px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-red{background:transparent;color:#ff4444}
+.badge-yellow{background:transparent;color:#e6a000}
+.badge-green{background:transparent;color:#06b706}
+.badge-gray{background:#999;color:#fff}
+.badge-warn{background:#ff6600;color:#fff}
+.badge-norenew{background:#000;color:#fff}
+.badge-mes{background:#111;color:#fff;margin:1px;font-size:9px}
+.badge-recur{background:#ffb937;color:#000}
+/* SEMAFORO DOT */
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:4px}
+.dot-red{background:#ff4444}.dot-yellow{background:#ffb937}.dot-green{background:#06b706}
+/* MINI BARS */
+.mini-bars{display:flex;gap:2px;align-items:flex-end;height:24px}
+.mini-bar{width:10px;border-radius:2px 2px 0 0;min-height:2px}
+/* SUBTABS */
+.subtabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.stab-btn{background:#fff;border:2px solid #000;border-radius:4px;padding:6px 14px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+.stab-btn.active{background:#06b706;color:#fff;border-color:#06b706}
+.subview{display:none}
+.subview.active{display:block}
+/* CHARTS */
+.chart-grid{display:grid;gap:16px;margin-bottom:16px}
+.chart-grid-2{grid-template-columns:1fr 1fr}
+.chart-grid-1{grid-template-columns:1fr}
+.chart-card{background:#fff;border:none;box-shadow:0 1px 8px rgba(0,0,0,.07);border-radius:16px;padding:14px}
+.chart-card h4{font-size:12px;font-weight:700;margin-bottom:10px;text-transform:uppercase;color:#333}
+.chart-card canvas{max-height:250px}
+/* AGENT CARD (tendencias) */
+.agent-card{background:#fff;border:none;box-shadow:0 1px 8px rgba(0,0,0,.07);border-radius:16px;margin-bottom:14px;overflow:hidden}
+.agent-card-head{background:#06b706;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px}
+.agent-card-body{padding:14px}
+/* SESSION CARDS */
+.sess-card{background:#fff;border:2px solid #000;border-radius:6px;margin-bottom:12px;overflow:hidden}
+.sess-head{background:#06b706;color:#fff;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sess-head span{font-weight:700;font-size:13px}
+.sess-body{padding:14px}
+.sess-obs{background:#f8f8f8;border-left:3px solid #ffb937;padding:8px 12px;font-size:12px;margin-bottom:10px}
+.sess-link{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:6px}
+.sess-link a{color:#06b706;word-break:break-all;font-weight:600}
+.sess-text{font-size:12px;color:#555;font-style:italic;margin-bottom:4px}
+/* MONITORING */
+.mon-card{background:#fff;border:2px solid #000;border-radius:6px;margin-bottom:14px;overflow:hidden}
+.mon-head{background:#111;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px}
+.mon-body{padding:14px}
+.mon-nota-big{font-size:36px;font-weight:800;margin-right:16px}
+.mon-cat{margin-top:12px;border-top:1px solid #eee;padding-top:10px}
+.mon-cat-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:6px}
+.mon-items{display:flex;flex-wrap:wrap;gap:6px}
+.score-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #000}
+.sc-green{background:#06b706;color:#fff}
+.sc-yellow{background:#ffb937;color:#000}
+.sc-red{background:#ff4444;color:#fff}
+.sc-none{background:#eee;color:#999}
+/* TOTALS ROW */
+.total-row td{background:#ffb937 !important;font-weight:800;border-top:2px solid #000}
+/* RESPONSIVE */
+@media(max-width:768px){
+  .chart-grid-2{grid-template-columns:1fr}
+  .header-title{font-size:14px}
+  .kpi-card .kpi-val{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img class="header-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgNjAiPjx0ZXh0IHk9IjQ4IiBmb250LWZhbWlseT0iU29yYSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ4IiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmIj5VVEVMPC90ZXh0Pjwvc3ZnPg==" alt="UTEL">
+  <div class="header-title">Dashboard Agentes Low Performance · Seguimiento &amp; Coaching</div>
+  <div class="header-badge">🇵🇪 PERÚ</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn active" onclick="showView('v1',this)">📊 Rendimiento por Agente</button>
+  <button class="nav-btn" onclick="showView('v2',this)">📈 Acumulativo por Líder</button>
+  <button class="nav-btn" onclick="showView('v3',this)">📉 Tendencias Semanales</button>
+  <button class="nav-btn" onclick="showView('v4',this)">💬 Sesiones Trainer</button>
+  <button class="nav-btn" onclick="showView('v5',this)">🎯 Monitoreo Diagnóstico</button>
+</div>
+
+<!-- ==================== VIEW 1 ==================== -->
+<div id="v1" class="view active">
+  <div class="filters">
+    <div class="filter-group"><label>Mes</label><select id="f1-mes" onchange="renderPerformance()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Trainer</label><select id="f1-trainer" onchange="renderPerformance()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Supervisor</label><select id="f1-sup" onchange="renderPerformance()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Coordinador</label><select id="f1-coord" onchange="renderPerformance()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Semáforo</label>
+      <select id="f1-sem" onchange="renderPerformance()">
+        <option value="">Todos</option>
+        <option value="red">🔴 Rojo</option>
+        <option value="yellow">🟡 Amarillo</option>
+        <option value="green">🟢 Verde</option>
+      </select>
+    </div>
+    <div class="filter-group"><label>Agente</label><input id="f1-ag" type="text" placeholder="Buscar..." oninput="renderPerformance()"></div>
+    <button class="btn-clear" onclick="clearFilters('1')">↺ Limpiar</button>
+  </div>
+  <div class="kpi-row" id="kpi1"></div>
+  <div class="tbl-wrap"><table id="tbl1"><thead><tr>
+    <th>Agente</th><th>Trainer</th><th>Supervisor</th><th>Coordinador</th><th>Mes(es)</th>
+    <th>Meta</th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th>
+    <th>Cierre</th><th>Cumpl.%</th><th>Semáforo</th><th>Tendencia</th><th>Recurrencia</th>
+  </tr></thead><tbody id="tbody1"></tbody></table></div>
+</div>
+
+<!-- ==================== VIEW 2 ==================== -->
+<div id="v2" class="view">
+  <div class="filters">
+    <div class="filter-group"><label>Mes</label><select id="f2-mes" onchange="renderLeader()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Coordinador</label><select id="f2-coord" onchange="renderLeader()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Supervisor</label><select id="f2-sup" onchange="renderLeader()"><option value="">Todos</option></select></div>
+    <button class="btn-clear" onclick="clearFilters('2')">↺ Limpiar</button>
+  </div>
+  <h3 style="font-size:13px;font-weight:800;margin-bottom:8px;text-transform:uppercase">Por Coordinador</h3>
+  <div class="tbl-wrap" style="margin-bottom:16px"><table id="tbl2a"><thead><tr>
+    <th>Coordinador</th><th>Nº Líderes</th><th>Agentes LP</th><th>Total Ventas</th><th>Total Meta</th><th>Cumpl.%</th><th>🔴</th><th>🟡</th><th>🟢</th><th>Semáforo</th>
+  </tr></thead><tbody id="tbody2a"></tbody></table></div>
+  <h3 style="font-size:13px;font-weight:800;margin-bottom:8px;text-transform:uppercase">Por Líder / Supervisor</h3>
+  <div class="tbl-wrap"><table id="tbl2b"><thead><tr>
+    <th>Líder</th><th>Coordinador</th><th>Agentes LP</th><th>Total Ventas</th><th>Total Meta</th><th>Cumpl.%</th><th>🔴</th><th>🟡</th><th>🟢</th><th>Semáforo</th>
+  </tr></thead><tbody id="tbody2b"></tbody></table></div>
+</div>
+
+<!-- ==================== VIEW 3 ==================== -->
+<div id="v3" class="view">
+  <div class="subtabs">
+    <button class="stab-btn active" onclick="showSubTab('ag',this)">👤 Por Agente</button>
+    <button class="stab-btn" onclick="showSubTab('li',this)">🏆 Por Líder</button>
+    <button class="stab-btn" onclick="showSubTab('gl',this)">🌐 Global</button>
+  </div>
+
+  <div id="sub-ag" class="subview active">
+    <div class="filters">
+      <div class="filter-group"><label>Agente</label><input id="f3-ag" type="text" placeholder="Buscar..." oninput="renderTrendAgent()"></div>
+      <div class="filter-group"><label>Supervisor</label><select id="f3-sup" onchange="renderTrendAgent()"><option value="">Todos</option></select></div>
+      <div class="filter-group"><label>Solo Recurrentes</label>
+        <select id="f3-recur" onchange="renderTrendAgent()"><option value="">Todos</option><option value="si">Sí</option></select>
+      </div>
+      <button class="btn-clear" onclick="clearFilters('3')">↺ Limpiar</button>
+    </div>
+    <div id="trend-ag-cards"></div>
+  </div>
+
+  <div id="sub-li" class="subview">
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card"><h4>Cumplimiento % por mes por Supervisor</h4><canvas id="ch-li1"></canvas></div>
+      <div class="chart-card"><h4>Ventas por mes por Supervisor</h4><canvas id="ch-li2"></canvas></div>
+      <div class="chart-card"><h4>Agentes LP por mes por Supervisor</h4><canvas id="ch-li3"></canvas></div>
+      <div class="chart-card"><h4>Semáforo global por mes (apilado)</h4><canvas id="ch-li4"></canvas></div>
+    </div>
+  </div>
+
+  <div id="sub-gl" class="subview">
+    <div class="chart-grid chart-grid-2">
+      <div class="chart-card"><h4>Ventas vs Meta por mes + Cumpl.%</h4><canvas id="ch-gl1"></canvas></div>
+      <div class="chart-card"><h4>Ventas semanales acumuladas</h4><canvas id="ch-gl2"></canvas></div>
+      <div class="chart-card"><h4>Semáforo global por mes</h4><canvas id="ch-gl3"></canvas></div>
+      <div class="chart-card"><h4>Agentes LP por mes</h4><canvas id="ch-gl4"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VIEW 4 ==================== -->
+<div id="v4" class="view">
+  <div class="filters">
+    <div class="filter-group"><label>Mes</label><select id="f4-mes" onchange="renderSessions()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Trainer</label><select id="f4-trainer" onchange="renderSessions()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Agente</label><input id="f4-ag" type="text" placeholder="Buscar..." oninput="renderSessions()"></div>
+    <button class="btn-clear" onclick="clearFilters('4')">↺ Limpiar</button>
+  </div>
+  <div id="sess-cards"></div>
+</div>
+
+<!-- ==================== VIEW 5 ==================== -->
+<div id="v5" class="view">
+  <div class="subtabs">
+    <button class="stab-btn active" onclick="showMonSubTab('ag',this)">👤 Por Agente</button>
+    <button class="stab-btn" onclick="showMonSubTab('li',this)">🏆 Por Líder</button>
+    <button class="stab-btn" onclick="showMonSubTab('co',this)">🌐 Por Coordinador</button>
+  </div>
+  <div class="filters">
+    <div class="filter-group"><label>Mes</label><select id="f5-mes" onchange="renderMonitoring()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Coordinador</label><select id="f5-coord" onchange="renderMonitoring()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Supervisor</label><select id="f5-sup" onchange="renderMonitoring()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Trainer</label><select id="f5-trainer" onchange="renderMonitoring()"><option value="">Todos</option></select></div>
+    <div class="filter-group"><label>Agente</label><input id="f5-ag" type="text" placeholder="Buscar..." oninput="renderMonitoring()"></div>
+    <button class="btn-clear" onclick="clearFilters('5')">↺ Limpiar</button>
+  </div>
+  <div class="kpi-row" id="kpi5"></div>
+
+  <div id="mon-sub-ag" class="subview active">
+    <div class="tbl-wrap" style="margin-bottom:16px"><table id="tbl5"><thead><tr>
+      <th>Agente</th><th>Coordinador</th><th>Líder</th><th>Trainer</th><th>Mes</th>
+      <th>Hab.Com.</th><th>Sondeo</th><th>Personal.</th><th>Objeciones</th><th>Cierre</th><th>⭐ Final</th>
+    </tr></thead><tbody id="tbody5"></tbody></table></div>
+    <div id="mon-detail-cards"></div>
+  </div>
+
+  <div id="mon-sub-li" class="subview">
+    <div class="tbl-wrap" style="margin-bottom:16px"><table id="tbl5b"><thead><tr>
+      <th>Líder</th><th>Hab.Com.</th><th>Sondeo</th><th>Personal.</th><th>Objeciones</th><th>Cierre</th><th>⭐ Final</th>
+    </tr></thead><tbody id="tbody5b"></tbody></table></div>
+    <div class="chart-card"><h4>Categorías por Líder</h4><canvas id="ch-mon-li"></canvas></div>
+  </div>
+
+  <div id="mon-sub-co" class="subview">
+    <div class="tbl-wrap" style="margin-bottom:16px"><table id="tbl5c"><thead><tr>
+      <th>Coordinador</th><th>Hab.Com.</th><th>Sondeo</th><th>Personal.</th><th>Objeciones</th><th>Cierre</th><th>⭐ Final</th>
+    </tr></thead><tbody id="tbody5c"></tbody></table></div>
+    <div class="chart-card"><h4>Categorías por Coordinador</h4><canvas id="ch-mon-co"></canvas></div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// RAW DATA — Datos parseados del Drive (PERÚ)
+// =============================================
+const RAW_DATA = [
+// ===== FEBRERO 2026 =====
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"VIDALON DAVALOS GINO ALONSO",correo:"gino.vidalon@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:1,v2:1,v3:0,v4:1,v5:0,cierre:3,cumpl:38,matriculas:8,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"BARRIOS ALTAMAR ELAINE ROSA",correo:"elaine.barrios@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:3,v2:1,v3:2,v4:1,v5:0,cierre:7,cumpl:175,matriculas:7,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"NAVARRO SANTILLAN NATALIA ELISA",correo:"natalia.navarro@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:1,v4:3,v5:0,cierre:4,cumpl:50,matriculas:6,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:91,mon_sondeo_nota:41,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:62,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:61,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:64},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"QUISPE ROJAS GINA",correo:"gina.quispe@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:2,v3:1,v4:0,v5:0,cierre:3,cumpl:38,matriculas:7,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:62,mon_sondeo_nota:22,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:85,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:56},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"RUÍZ ARECHUA ALEXANDRA NICOLL",correo:"alexandra.ruiz@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:18,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:85,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:52},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"DAZA PRIMO NELSON",correo:"nelson.daza@utel.edu.mx",supervisor:"RIOS GUTIERREZ MARIO CESAR",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:2,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:39,mon_sondeo_nota:40,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:72,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:50},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"LIMAYLLA TERREL VERONICA MARLENE",correo:"veronica.limaylla@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:4,v2:0,v3:1,v4:0,v5:0,cierre:5,cumpl:63,matriculas:5,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"CUEVA RIVERA JOSEPH ANDRÉ",correo:"joseph.cueva@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:3,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:55,mon_sondeo_nota:23,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:80,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:87,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:61},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"VALVERDE YANQUI SARA ISABEL",correo:"sara.valverde@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:1,v2:1,v3:0,v4:0,v5:0,cierre:2,cumpl:25,matriculas:3,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Febrero 2026",trainer:"SEBASTIAN",agente:"CORTEZ MAYTA SAUL ARMANDO",correo:"saul.cortez@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:1,v3:2,v4:0,v5:0,cierre:3,cumpl:38,matriculas:10,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:19,mon_sondeo_nota:48,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:80,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:49},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"ROSALES FASANANDO DAVID",correo:"david.rosales@utel.edu.mx",supervisor:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:0,v3:0,v4:2,v5:0,cierre:2,cumpl:25,matriculas:1,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:28,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:0,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:14},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"ABANTO MIRANDA FIORELLA BELLA",correo:"fiorella.abanto@utel.edu.mx",supervisor:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:1,v3:0,v4:0,v5:0,cierre:1,cumpl:13,matriculas:6,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:62,mon_sondeo_nota:91,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:77},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"ASCENCIOS GUERRERO MAYRA ESTHER",correo:"mayra.ascencios@utel.edu.mx",supervisor:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:1,v3:0,v4:0,v5:0,cierre:1,cumpl:13,matriculas:5,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:0,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:0},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"ALVA RONDON CESAR AUGUSTO",correo:"cesar.alva@utel.edu.mx",supervisor:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"baja",s1:"",s2:"",s3:"",s4:"",mon_hab_com:62,mon_sondeo_nota:37,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:0,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:33},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"ASENCIOS CONDORI LUZ",correo:"luz.asencios@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"baja",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"GUZMÁN CUBA JUAN ANTONIO",correo:"juan.guzman@utel.edu.mx",supervisor:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:3,v2:0,v3:0,v4:0,v5:0,cierre:3,cumpl:38,matriculas:5,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Febrero 2026",trainer:"STEPH / KAREN",agente:"MONTERO PARRA DIONIS JOSÉ",correo:"dionis.montero@utel.edu.mx",supervisor:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:5,v1:0,v2:1,v3:0,v4:0,v5:0,cierre:1,cumpl:20,matriculas:2,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:42,mon_sondeo_nota:70,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:82,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:65},
+
+// ===== MARZO 2026 =====
+{mes:"Marzo 2026",trainer:"STEPH",agente:"MORALES CARRILLO PERLA",correo:"perla.morales@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Está en provincia. Indica que no tiene contactabilidad. Se le encontraron llamadas cortadas",s1:"",s2:"",s3:"",s4:"",mon_hab_com:56,mon_sondeo_nota:66,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"QUISPE ROJAS GINA",correo:"gina.quispe@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:2,v3:0,v4:0,v5:0,cierre:2,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"LIMO TUANAMA LIZ KATIUSKA ERITA",correo:"liz.limo@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:3,v2:0,v3:0,v4:0,v5:0,cierre:3,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"NORIEGA NOLE SILVANA ESTEFANIE",correo:"silvana.noriega@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:5,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Estuvo desmotivada porque perdió varias ventas. Está comprometida en lograr los objetivos de marzo. Le falta sondear y conectar beneficios con necesidades.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:43,mon_sondeo_nota:40,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"PÉREZ GOGGIN DENNIS EMERSON",correo:"dennis.perez@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:9,v1:1,v2:0,v3:0,v4:2,v5:0,cierre:3,cumpl:33,matriculas:0,obs:"Indica que sus resultados bajaron porque no hay contactabilidad.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:54,mon_sondeo_nota:45,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"CANALES GUTIÉRREZ LEYDY VANESA",correo:"leydy.canales@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:0,v2:1,v3:0,v4:1,v5:0,cierre:2,cumpl:20,matriculas:0,obs:"Indica que sus resultados bajaron porque no hay contactabilidad y porque su mamá estuvo mal de salud.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:29,mon_sondeo_nota:50,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"NAVARRO SANTILLAN NATALIA ELISA",correo:"natalia.navarro@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:0,v2:2,v3:0,v4:1,v5:0,cierre:3,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"RUÍZ ARECHUA ALEXANDRA NICOLL",correo:"alexandra.ruiz@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"RENUNCIA",s1:"",s2:"",s3:"",s4:"",mon_hab_com:38,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"JIMÉNEZ MÉNDEZ DAYANA ANTUANETTE",correo:"dayana.jimenez@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"RENUNCIA",s1:"",s2:"",s3:"",s4:"",mon_hab_com:42,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"ROSALES FASANANDO DAVID",correo:"david.rosales@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"ABANTO MIRANDA FIORELLA BELLA",correo:"fiorella.abanto@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"ASCENCIOS GUERRERO MAYRA ESTHER",correo:"mayra.ascencios@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"GUZMÁN CUBA JUAN ANTONIO",correo:"juan.guzman@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"MALDONADO LA COTERA ANGELO JORGE",correo:"angelo.maldonado@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"No tiene contactabilidad",s1:"",s2:"",s3:"",s4:"",mon_hab_com:42,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"CRUZADO SANCHES DEYSI MARIBEL",correo:"deysi.cruzado@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:0,v2:0,v3:1,v4:0,v5:0,cierre:1,cumpl:10,matriculas:0,obs:"Indica haber bajado sus resultados ya que el mes pasado no tuvo mucha contactabilidad",s1:"",s2:"",s3:"",s4:"",mon_hab_com:62,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"YSLA PEREZ CRISTINA MILAGROS",correo:"cristina.ysla@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:0,v2:1,v3:3,v4:0,v5:0,cierre:4,cumpl:40,matriculas:0,obs:"Ha mejorado su sondeo, pero le falta conectar beneficios con necesidades. Indica que su bajo rendimiento es porque estuvo sin supervisor y no había mucha contactabilidad.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:43,mon_sondeo_nota:53,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"MARTEL CHAVEZ JULY",correo:"july.martel@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:1,v2:1,v3:0,v4:0,v5:0,cierre:2,cumpl:20,matriculas:0,obs:"Le falta personalizar beneficios y realizar un cierre efectivo. Indica que ha bajado la calidad de las bases.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:45,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"CORTEZ MAYTA SAUL ARMANDO",correo:"saul.cortez@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:2,v2:0,v3:0,v4:0,v5:0,cierre:2,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"MORO ARAUJO LUZ ESTHER",correo:"luz.moro@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Le falta mejorar el sondeo y conectar beneficios. No condiciona descuentos con envío de documentos. Está en provincia.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:39,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"STEPH",agente:"NOVOA IHUE DIEGO ANTHONY",correo:"diego.novoa@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:6,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Realiza un buen sondeo pero no utiliza la información para personalizar. Está en provincia.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:42,mon_sondeo_nota:71,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"HUERTAS VALVERDE MILUSKA YANIRA",correo:"miluska.huertas@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"sin llamadas",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"VALVERDE YANQUI SARA ISABEL",correo:"sara.valverde@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:1,v2:1,v3:0,v4:0,v5:0,cierre:2,cumpl:0,matriculas:0,obs:"RENUNCIA 18/03",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"CARBAJAL BERROSPI GISELA",correo:"gisela.carbajal@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:4,v2:5,v3:2,v4:5,v5:0,cierre:16,cumpl:160,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"TAQUIDES ICHO MARGOT MARLENE",correo:"margot.taquides@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Tiene actitud positiva, se queja de la poca contactabilidad, pero está enfocada en cumplir la meta",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:46,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"TASAYCO LETONA HILDA LUZ",correo:"hilda.tasayco@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:6,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"ARBULU VELASQUEZ ESTEFANI AKANE",correo:"estefani.arbulu@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:1,v2:1,v3:0,v4:0,v5:0,cierre:2,cumpl:20,matriculas:0,obs:"Bajó sus resultados en febrero por poca contactabilidad y subida de precios",s1:"",s2:"",s3:"",s4:"",mon_hab_com:79,mon_sondeo_nota:56,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"PISCOYA RETIS GÉNESIS ROSALIA DE LA CRUZ",correo:"genesis.piscoya@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:10,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Fallecimiento de su papá, sin embargo está comprometida con la gestión.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:66,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"SILVA CUELLAR LIDIA",correo:"lidia.silva@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:6,v1:0,v2:0,v3:0,v4:1,v5:0,cierre:1,cumpl:17,matriculas:0,obs:"Menciona que tiene poca contactabilidad lo cual le genera frustración",s1:"",s2:"",s3:"",s4:"",mon_hab_com:58,mon_sondeo_nota:40,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"FERNANDEZ HURTADO JULIA",correo:"julia.fernandez@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:6,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:3,obs:"Tiene poca contactabilidad",s1:"",s2:"",s3:"",s4:"",mon_hab_com:50,mon_sondeo_nota:29,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"REMIGIO GALLEGO KATHERINE",correo:"katherine.remigio@utel.edu.mx",supervisor:"RIOS GUTIERREZ MARIO CESAR",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:0,v2:0,v3:0,v4:1,v5:0,cierre:1,cumpl:10,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:68,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"ABANTO BERNILLA KATHERIN NIKE",correo:"katherin.abanto@utel.edu.mx",supervisor:"RIOS GUTIERREZ MARIO CESAR",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:6,v1:0,v2:0,v3:2,v4:0,v5:0,cierre:2,cumpl:33,matriculas:0,obs:"Está en provincia, indica que no tiene mucha contactabilidad",s1:"",s2:"",s3:"",s4:"",mon_hab_com:67,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"TELLO VIZCARDO JHOSSELYN",correo:"jhosselyn.tello@utel.edu.mx",supervisor:"RIOS GUTIERREZ MARIO CESAR",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:2,v2:0,v3:0,v4:0,v5:0,cierre:2,cumpl:20,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"PAIVA PISFIL RUBÍ DE LOS ANGELES",correo:"rubi.paiva@utel.edu.mx",supervisor:"RIOS GUTIERREZ MARIO CESAR",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:6,v1:0,v2:3,v3:0,v4:0,v5:0,cierre:3,cumpl:50,matriculas:0,obs:"Sus resultados de feb se vieron afectados debido a sus faltas por problemas de salud. Tiene buena actitud.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:45,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"GARRO VERA ANTHONY",correo:"anthony.garro@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Le afectó cambiar de supervisor constantemente en un periodo de 3 meses",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:43,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"PEREZ PALACIOS SERGIO GUILLERMO",correo:"sergio.perez@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:10,v1:1,v2:1,v3:2,v4:2,v5:0,cierre:6,cumpl:60,matriculas:0,obs:"Siente que se debe a poca contactabilidad y el inicio de clases",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:43,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"VERA CARRION VALENTINA DE LOS ANGELES",correo:"valentina.vera@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:5,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Estuvo con licencia en feb. RENUNCIA DESDE EL 11/03",s1:"",s2:"",s3:"",s4:"",mon_hab_com:40,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"PARIONA YANAYLLE JENYFER PAOLA",correo:"jenyfer.pariona@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:4,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:53,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"PONCE DOMINGUEZ ANGELO LUIS",correo:"angelo.ponce@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:4,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"No superación de periodo de prueba 13/03",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+
+// ===== ABRIL 2026 =====
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"MORALES CARRILLO PERLA",correo:"perla.morales@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:0,v3:2,v4:0,v5:0,cierre:2,cumpl:25,matriculas:0,obs:"Tuvo inconvenientes de contactación la primera semana",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"AGUILAR VASQUEZ JORGE ANDRE",correo:"jorgean.aguilar@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:4,obs:"primera semana tuvo problemas de tipificaciones",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"LIMO TUANAMA LIZ KATIUSKA ERITA",correo:"liz.limo@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:8,obs:"recien se reincorpora a gestión 13/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"QUISPE ROJAS GINA",correo:"gina.quispe@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:2,v3:1,v4:0,v5:2,cierre:5,cumpl:63,matriculas:0,obs:"se trabaja en perfilamiento y sondeo y generar cierre en linea",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"LEGUA BARRIOS NATHALY JACQUELINE",correo:"nathaly.legua@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:1,v3:1,v4:2,v5:1,cierre:5,cumpl:63,matriculas:0,obs:"se aclara temas de speech (inconvenientes de conducta)",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"ARROYO MIRANDA PRINCE ENRIQUE ARMANDO",correo:"prince.arroyo@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:1,v3:0,v4:0,v5:1,cierre:2,cumpl:25,matriculas:0,obs:"sin tanto contacto efectivo se trabaja cierre en 24 hrs sin expandir tantos dias",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"NORIEGA NOLE SILVANA ESTEFANIE",correo:"silvana.noriega@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:4,obs:"problema con seguimientos se trabaja perfilamiento sondeo y notas",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"VICTORIA",agente:"ABANTO BERNILLA KATHERIN NIKE",correo:"katherin.abanto@utel.edu.mx",supervisor:"CHIGNE REYES LEOPOLDO JESUS",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:8,obs:"inconvenientes en gestión por bulla en casa",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"BARRIOS ALTAMAR ELAINE ROSA",correo:"elaine.barrios@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:1,v3:0,v4:1,v5:0,cierre:2,cumpl:50,matriculas:0,obs:"Problemas de salud / se refuerza cierre.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"CANALES GUTIÉRREZ LEYDY VANESA",correo:"leydy.canales@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:1,v2:1,v3:1,v4:0,v5:1,cierre:4,cumpl:50,matriculas:0,obs:"Poca contactabilidad, algunos clientes mencionan que no han solicitado información.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"NAVARRO SANTILLAN NATALIA ELISA",correo:"natalia.navarro@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:1,v3:0,v4:1,v5:1,cierre:3,cumpl:38,matriculas:0,obs:"Poca contactabilidad. Personalización de beneficios y cierre. No renovación",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"TELLO VIZCARDO JHOSSELYN",correo:"jhosselyn.tello@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:2,v2:0,v3:0,v4:0,v5:0,cierre:1,cumpl:25,matriculas:0,obs:"Problemas de salud / RENUNCIA POR PROBLEMAS DE SALUD 15/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"QUIROZ CORTEGANA GIANELLA FIORELLA",correo:"quiroz.gianella@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:1,v5:0,cierre:1,cumpl:13,matriculas:0,obs:"Poca contactabilidad, menciona que hay registros de gente mayor que no han solicitado información.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"QUIROZ AUCCAPUCLLA ALEXANDER TOMAS",correo:"alexander.quiroz@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Poca contactabilidad. Se detecta falta de sondeo y cierre. Posible renuncia",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"TAQUIDES ICHO MARGOT MARLENE",correo:"margot.taquides@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:1,v3:0,v4:4,v5:1,cierre:6,cumpl:75,matriculas:0,obs:"Poca contactabilidad",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"REMIGIO GALLEGO KATHERINE",correo:"katherine.remigio@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:1,v3:1,v4:1,v5:2,cierre:5,cumpl:63,matriculas:0,obs:"Híbrido. No se realiza un tercer monitoreo por falta de contactabilidad",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"PISCOYA RETIS GÉNESIS ROSALIA DE LA CRUZ",correo:"genesis.piscoya@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:5,v1:1,v2:0,v3:0,v4:1,v5:0,cierre:2,cumpl:40,matriculas:0,obs:"No tiene llamadas en i6. VACACIONES del 10 al 24 de abril",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"ARBULU VELASQUEZ ESTEFANI AKANE",correo:"estefani.arbulu@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"ACOSTA CORREA JAIR FRANCISCO",correo:"jair.acosta@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:2,v4:0,v5:1,cierre:3,cumpl:38,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"MINAYA ROJAS LUIS",correo:"luis.minaya@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:2,v3:1,v4:0,v5:0,cierre:3,cumpl:38,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"CUBA GARCÍA RAQUEL",correo:"raquel.cuba@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:1,v2:0,v3:0,v4:1,v5:0,cierre:2,cumpl:25,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"RINCON BUSTAMANTE KATERIN MARIA",correo:"katerin.rincon@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:0,v3:0,v4:0,v5:1,cierre:1,cumpl:25,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"MORO ARAUJO LUZ ESTHER",correo:"luz.moro@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:1,v3:1,v4:1,v5:0,cierre:3,cumpl:38,matriculas:0,obs:"No renovación 30/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"URQUIZA FARID ISRAEL",correo:"farid.urquiza@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:5,v1:0,v2:0,v3:0,v4:1,v5:1,cierre:2,cumpl:40,matriculas:0,obs:"Tiene dudas con el cierre, menciona que los clientes son desconfiados",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"MARTEL CHAVEZ JULY",correo:"july.martel@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:2,v3:1,v4:0,v5:1,cierre:4,cumpl:100,matriculas:0,obs:"Saldrá de vacaciones desde el 15/04 hasta mayo.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"CRUZADO SANCHES DEYSI MARIBEL",correo:"deysi.cruzado@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Baja",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"NOVOA IHUE DIEGO ANTHONY",correo:"diego.novoa@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:1,v5:0,cierre:1,cumpl:13,matriculas:0,obs:"No renovación 30/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"CORTEZ MAYTA SOFIA",correo:"saul.cortez@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:5,v1:0,v2:0,v3:0,v4:0,v5:1,cierre:1,cumpl:20,matriculas:0,obs:"No renovación 30/04. Dicción, se traba un poco al hablar",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"FERNÁNDEZ BECERRA ANALÍ GABRIELA",correo:"anali.fernandez@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:4,v1:0,v2:0,v3:0,v4:0,v5:1,cierre:1,cumpl:25,matriculas:0,obs:"Inseguridad en la parte del cierre",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"JIMENEZ GUERRA CARLOS DAVID",correo:"carlos.guerra@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:4,v1:0,v2:0,v3:1,v4:1,v5:0,cierre:2,cumpl:50,matriculas:0,obs:"Llamadas extensas, brinda mucha información",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+// ===== MAYO 2026 =====
+{mes:"Mayo 2026",trainer:"KAREN",agente:"REMIGIO GALLEGO KATHERINE",correo:"katherine.remigio@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:1,v4:0,v5:0,cierre:1,cumpl:14,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Buena conexión emocional pero nula generación urgencia. Su tono es demasiado concesivo. Producto: Menciona el complemento colegiatura 254 soles, no menciona el incremento anual ni la política referidos. ¡️ Objeciones: El cliente tiene un presupuesto S/200-250, ella ofrece la beca S/127, pero no rebate con éxito la falta documentos inmediatos. ¤ Cierre: Ab...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Perfil informativo, no comercial. Producto: Mencionó el complemento colegiatura,omitió informar sobre el incremento anual y no solicitó referidos. ¡️ Objeciones: Manejo débil ante la dependencia los padres. Aceptó la postergación sin intentar involucrar a los decisores o profundizar en sus dudas. ¤ Cierre: Momento abandonado. Derivó proactivamente a Whats...",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: Aunque proyecta seguridad técnica (Sunedu/Apostillado), Katherine no transiciona esa autoridad hacia una exigencia cierre. Producto:Mencionó el complemento colegiatura pero omitió el incremento anual y la solicitud referidos. ¡️ Objeciones: Realiza un excelente manejo técnico sobre la validez del título. Sin embargo, ante la objeción económica y le faltó ...",s4:"",mon_hab_com:100,mon_sondeo_nota:87,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:100,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:87,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:60,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:87},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"ACOSTA CORREA JAIR FRANCISCO",correo:"jair.acosta@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Estructurado pero cede el control al final. Producto: Sí menciona la actualización anual costos, menciona el complemento colegiatura,no menciona la política referidos. ¡️ Objeciones: Maneja bien la duda sobre la validez internacional (SEP/SUNEDU). Falla al no rebatir el 'te lo mando ahorita' respecto al DNI. ¤ Cierre: Pasivo. Queda a la espera un WhatsApp...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: El asesor demuestra un tono amable pero falto autoridad. Presenta falta control sobre el cierre, permitiendo que el cliente decida los tiempos la venta. Producto:menciona el incremento anual, el complemento colegiatura pero olvida solicitar referidos ¡️ Objeciones: El manejo es pasivo. Escucha y valida, pero no rebate con firmeza. Ante el 'llámame a las 3...",s3:"Fecha: //2026 URLTr: Presencial. £️ Speech: Tono empático pero falto autoridad; cede el control al cliente. Producto: Mencionó el complemento colegiatura; omitió el incremento anual y la política referidos. ¡️ Objeciones: No rebate adecuadamente; aceptó el plazo 'dos semanas' del cliente sin intentar adelantar el compromiso. ¤ Cierre: Deficiente. Acuerdos + Estado:Envió información por WhatsApp fo...",s4:"",mon_hab_com:100,mon_sondeo_nota:87,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:100,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:75,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:50,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:83},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"MINAYA ROJAS LUIS",correo:"luis.minaya@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: £️ Speech: Poco profesional. Pierde minutos valiosos discutiendo referencias calles en Lima. Producto: Menciona referidos solo como comentario despedida, afirma falsamente que no hay incrementos,no menciona el complemento colegiatura. ¡️ Objeciones: Ante la objeción 'gastos e improvisación', no ofrece argumentos valor sólido, solo repite que la beca vence. ¤ Cierre: Muy débil....",s2:"Fecha: //2026 URLTr: https://drive.google.com/file/d/1PbM1lWzX_1uzp-JwJEbFHT-d0Z0gCZKM/view £️ Speech: Tiene falta fluidez y no proyecta seguridad Producto: No mencionó el incremento anual, el complemento colegiatura ni la política referidos. Además, demostró falta dominio con relacion al uso AAV y manejo del costo del título. ¡️ Objeciones: Ante la duda del cliente sobre acortar más el tiempo, el...",s3:"Fecha: //2026 URLTr: £️ Speech: Aunque tiene un tono voz amable y profesional debe mejorar el uso las muletillas. Producto: No mencionó el incremento anual, el complemento colegiatura ni la política referidos. ¤ Cierre: El prospecto corta la llamada Acuerdos + Estado:No se pudo establecer",s4:"",mon_hab_com:100,mon_sondeo_nota:75,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:87,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:50,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:30,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:69},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"RINCON BUSTAMANTE KATERIN MARIA",correo:"katerin.rincon@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Fluido pero sin capacidad retención. Producto: Menciona el complemento colegiatura pero no especifica y no menciona incremento anual ni referidos. ¡️ Objeciones: El prospecto prioriza la universidad sus hijos la asesora ofrece descuento pero no rebate la postergación por trabajo. ¤ Cierre: Frustrado. Se limita a agendar una llamada para las 4 PM sin haber...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: El bajo rendimiento se origina en una escucha pasiva y exceso empatía no comercial. La asesora permite que el cliente extienda sus problemas personales sin redirigir la conversación hacia la urgencia profesionalizarse para resolver dichos problemas. Producto: Mencionó el incremento anual cuotas sin embargo no mencionó el complemento colegiatura ni la polí...",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: Perfil 'Informadora Técnica'. Producto: Mencionó el incremento anual, y el complemento colegiatura sin emabrgo no solicitó referidos ¡️ Objeciones: No rebate la intención la cliente 'empezar a mitad año' por temas económicos; se limita a dar la información sin presionar el beneficio del ahorro inmediato. ¤ Cierre: Crítico y abandonado por derivación proac...",s4:"",mon_hab_com:100,mon_sondeo_nota:83,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:91,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:50,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:13,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:68},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"ARBULU VELASQUEZ ESTEFANI AKANE",correo:"estefani.arbulu@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:1,v3:1,v4:0,v5:0,cierre:2,cumpl:29,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Inseguro, proyecta falta confianza en su propia explicación. Producto:No menciona incremento anual ni referidos. ¡️ Objeciones: No sabe manejar la objeción 'sacar flujo ingresos'; se queda callada preguntando qué tiene que evaluar. ¤ Cierre: Tímido. Pone un plazo hasta las 2 PM pero no solicita el DNI forma directa para separar la vacante. Acuerdos + Esta...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Venta informativa Producto: Mencionó el complemento colegiatura y el incremento anual. No mencionó la política referidos ¡️ Objeciones: Maneja bien la validez académica (SEP/Sunedu), pero falla al no rebatir cuando el cliente dice estar 'en la calle' o que 'debe evaluarlo', aceptando la postergación inmediato. ¤ Cierre: Deficiente. Deriva proactivamente a...",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: Falta 'garra' comercial al enfrentar negativas, lo que proyecta un perfil 'tomadora pedidos' más que asesora ventas. Producto: Omite mencionar que el cargo por el complento colegiatura es recurrente. No mencionó el incremento anual ni la política referidos. ¡️ Objeciones: Nulo manejo objeciones ante problemas salud/dinero; se rinde ante la primera negativ...",s4:"",mon_hab_com:83,mon_sondeo_nota:66,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:91,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:58,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:26,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:65},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"PISCOYA RETIS GÉNESIS ROSALIA DE LA CRUZ",correo:"genesis.piscoya@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:1,v3:4,v4:0,v5:0,cierre:5,cumpl:71,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Amable pero poco agresiva. Producto: Menciona la política referidos y el beneficio descuentos. No menciona explícitamente el monto 254 soles la colegiatura ni el incremento anual. ¡️ Objeciones: No rebate la necesidad 'hablar con el hijo'. Acepta la postergación sin intentar un cierre con la madre, quien ya estaba convencida. ¤ Cierre: Inexistente. No bus...",s2:"Fecha: //2026 URLTr: https://drive.google.com/drive/folders/1CqvEUSNG9CEut0kxpHcPbO6CyN4Q2q5h £️ Speech: Muestra un tono seguro, fluido y profesional. Producto: Menciona los beneficios la licenciatura pero omite emncionar el incremento anual y el complemento colegiatura. ¡️ Objeciones: Responde adecuadamente a dudas técnicas sobre la modalidad y validez. Ante la objeción 'evaluación familiar', val...",s3:"Fecha: //2026 URLTr:Presencial £️ Speech: Evolución hacia una venta más consultiva y empática. Logra que la prospecto comparta detalles personales (carga familiar, maestría), lo cual usa para personalizar la oferta. Mantiene la fluidez, aunque sigue siendo permisiva en el cierre. Producto: Destaca la exoneración tesis y el perfil para abogados. No menciona el incremento anual ni solicita referidos...",s4:"",mon_hab_com:100,mon_sondeo_nota:91,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:100,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:66,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:46,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:81},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"ARROYO MIRANDA PRINCE ENRIQUE ARMANDO",correo:"prince.arroyo@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Perfil informativo y pasivo. Producto: Menciona el complemento colegiatura. No menciona el incremento anual. Menciona a los referidos forma genérica al final, pero no explica el beneficio del descuento adicional. ¡️ Objeciones: Ante la intención postular a una beca externa, no rebate con la seguridad que su oferta ya es una beca garantizada. ¤ Cierre: Def...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: El bajo rendimiento se origina en el uso monólogos extensos e informativos. El asesor asume el control mediante la entrega datos técnicos, pero no establece una conexión emocional, lo que hace que el cierre sea netamente transaccional. Producto: Mencionó el complemento colegiatura. NO mencionó el incremento anual ni la política referidos. ¡️ Objeciones: M...",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: El origen del bajo rendimiento en esta llamada es la falta cierre efectivo tras un buen manejo objeciones. Aunque el asesor logra conectar el producto con la necesidad económica del cliente, pierde el liderazgo comercial al final la llamada, permitiendo que la negociación se diluya en un mensaje WhatsApp sin compromiso. Producto: Mencionó el complemento c...",s4:"",mon_hab_com:83,mon_sondeo_nota:58,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:83,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:66,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:33,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:65},
+{mes:"Mayo 2026",trainer:"KAREN",agente:"CUBA GARCÍA RAQUEL",correo:"raquel.cuba@utel.edu.mx",supervisor:"BOLAÑOS GONZALES KATHERINE MELISSA",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"SIN MONITOREO",s2:"BAJA",s3:"BAJA",s4:"",mon_hab_com:75,mon_sondeo_nota:75,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:75,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:75,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:100,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:80},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"PANTA BARBA KATIA JACQUELINE",correo:"katia.panta@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:1,v3:1,v4:0,v5:0,cierre:2,cumpl:50,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech:1. habla demasido y vende poco, la asesora entra en monologos extremadamente largos, la cliente casi no participa ¡️ Objeciones:Responde bien a la duda sobre SUNEDU y validez del titulo, sin embargo, ante la objecion 'falta tiempo' no rebate ni intenta retenerla y acepta el wsp inmediato ¤ Cierre:No limita no condiciona y no intenta cerra en linea Acuerdos...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech:1.Imformativo y amable pero comercialmente ineficiente porque no logra concretar el compromiso del cliente (DNI O PAGO) ¡️ Objeciones: Resuelve bien la duda sobre la validez del titulo mas la objecion economica, no rebate si no acepta postergar la decision. ¤ Cierre: Agenda el seguimiento, pero falta la agresividad, no condiciona el descuento atravez del e...",s3:"Fecha: //2026 URLTr: Presencial £️ Speech:1.Amable, explica claramente el programa, sin embargo la llamada se percibe los monologos extensos ¡️ Objeciones: La asesora se limita a repetir los descuentos sin validar el miedoo rebatir el valor la inversion a largi plazo ¤ Cierre:Menciona el limite las hrs pero deriva proactivamente a wsp. Acuerdos + Estado:b Se queda en envio Dni por y agenda para el...",s4:"",mon_hab_com:83,mon_sondeo_nota:33,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:58,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:66,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:60,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:49},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"VUELTA ACUÑA KATHERINE YACEMIN",correo:"katherine.vuelta@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:1,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"VACACIONES",s2:"VACACIONES",s3:"VACACIONES",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"BARRIOS ALTAMAR ELAINE ROSA",correo:"elaine.barrios@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:0,v3:1,v4:0,v5:0,cierre:1,cumpl:25,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: meet.google.com/bpf-wghx-ukd (virtual) £️ Speech:1Muestra seguridad y amabilidad pero repit el guion legal y suena muy monotono (robotizado ¡️ Objeciones:Acepta postergar la decision para mañana sin intentar un cierre preventivo ¤ Cierre: Agenda fecha y hora pero falla al derivar a wsp antes intentar el cierre o pago Acuerdos + Estado:b Se queda en agenda para el dia siguiente",s2:"Fecha: //2026 URLTr: meet.google.com/rkh-vaok-jgg (virtual) £️ Speech: Mantiene un tono amable y seguro durante toda la sesion ¡️ Objeciones:No llega a rebatir porque el cliente no presenta negativa fuerte ¤ Cierre: Logra el compromiso del envi DNI y orienta hacia el pago por yape Acuerdos + Estado: se queda en pendiente pago",s3:"Fecha: //2026 URLTr: meet.google.com/rkh-vaok-jgg (virtual) £️ Speech: Su discurso es fluido y proyecta autoridad sobre el producto ¡️ Objeciones: No profundiza en la objecion real cuando el cliente dice que quiere averiguar por su lado ¤ Cierre: Se deriva a wsp par la comfirmacion perdiendo el cierre en vivo Acuerdos + Estado: Comfirmacion por wsp",s4:"",mon_hab_com:91,mon_sondeo_nota:66,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:83,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:83,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:60,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:77},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"SEMINARIO MONTOYA ELVA KATIUSKA",correo:"elva.seminario@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:3,v3:1,v4:0,v5:0,cierre:4,cumpl:57,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Mantiene un tono profesional y fluido durante toda la llamada ¡️ Objeciones: No rebate con agresividad comercial, solo acepta la demora del envio del DNI ¤ Cierre: Problema en generar el pago ( mucho tiempo en espera Acuerdos + Estado: Comfirmacion envio pago por wsp",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Manatiene un tono profesional y fluido ¡️ Objeciones: Cliente quiere posponer pago hasta 3 dias despues ¤ Cierre: Fallo en generar el pago en linea derivando a wsp Acuerdos + Estado: Se quedo en pendiente pago",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: Mnatiene un tono amable y maneja bien la interrupcion del cliente ¡️ Objeciones: cliente indica haber tenido inconvenientes con el pago lo cual la asesora supo guiarla adecuadamente ¤ Cierre: En espera envio boucher ( pago comfirmado) Acuerdos + Estado: Alumno",s4:"",mon_hab_com:100,mon_sondeo_nota:75,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:91,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:83,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:73,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:80},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"CONCHUCOS GüERE DE URQUIAGA YESENIA ANALI",correo:"yesenia.conchucos@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:3,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"INCAPACIDAD MÉDICA",s2:"INCAPACIDAD MÉDICA",s3:"INCAPACIDAD MÉDICA",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"QUIROZ CORTEGANA GIANELLA FIORELLA",correo:"quiroz.gianella@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Manatiene un tono profesional pero usa demasiadas muletillas (eh,bueno) ¡️ Objeciones:Costos lo cual la asesora no rebate adecuadamente ¤ Cierre: Solicita Nro DNI mas no hace un cierre o intenta un cierre en linea Acuerdos + Estado: Comfirmacion por wsp",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Manatiene un tono profesional pero mantiene las muletillas ¡️ Objeciones: Consultara con su esposa lo cual no ofrece resistencia ni rebate ¤ Cierre: No se intenta pago en linea Acuerdos + Estado: Comfirmacion por wsp",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: Manatiene un tono amable pero cae en un discurso robotizado (no intertua) ¡️ Objeciones: Tema convalidacion mas no rebate ni valida el interes del cliente ¤ Cierre: No busca un pago en linea Acuerdos + Estado: Comfirmacion por wsp",s4:"",mon_hab_com:58,mon_sondeo_nota:50,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:66,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:75,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:60,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:51},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"QUIROZ AUCCAPUCLLA ALEXANDER TOMAS",correo:"alexander.quiroz@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"BAJA",s2:"BAJA",s3:"BAJA",s4:"",mon_hab_com:50,mon_sondeo_nota:0,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:0,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:50,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:60,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:32},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"PEREZ PALACIOS SERGIO GUILLERMO",correo:"sergio.perez@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:1,v4:0,v5:0,cierre:1,cumpl:14,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Discurso robotizado y extensos usa muletillas. ¡️ Objeciones: No valida objecion del cliente no brinda respuesta adecuada ¤ Cierre: No busca un pago en linea Acuerdos + Estado: Comfirmacion por wsp",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Discurso robotizado y extensos ¡️ Objeciones: Sunedu respuesta correcta ¤ Cierre: Aunque intenta crear urgencia dderiva proactivamente a wsp Acuerdos + Estado: Comfirmacion por wsp",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: El asesor mantiene un tono profesional, se identifica correctamente y guía la conversación principio a fin ¡️ Objeciones: Valida objecion mas falto rebatir ¤ Cierre: Crea urgencia mas pierde el control derivando a wsp Acuerdos + Estado: Comfirmacion por wsp",s4:"",mon_hab_com:83,mon_sondeo_nota:50,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:66,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:75,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:60,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:61},
+{mes:"Mayo 2026",trainer:"VICTORIA",agente:"FERNÁNDEZ BECERRA ANALÍ GABRIELA",correo:"anali.fernandez@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:2,v3:0,v4:0,v5:0,cierre:2,cumpl:29,matriculas:0,obs:"",s1:"Fecha: //2026 URLTr: Presencial £️ Speech: Mantiene un tono profesional y seguro durante la llamada. Aunque tuvo una confusión con los montos, rectificó rápido. ¡️ Objeciones: Escucha y valida pero su respuesta se vuelve un sermon sobre la edad. ¤ Cierre: No se condiciona desuentos y no se busca generar pago en linea. Acuerdos + Estado: Comfirmacion por wsp",s2:"INCAPACIDAD MEDICA",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: Mantiene un tono amable y profesional durante toda la llamada ¡️ Objeciones: Responde con seguridad el tema Sunedu, perono consulta claridad al tema y paso defrente a los costos. ¤ Cierre: Genera urgencia e intenta realizar el pago pero ocurre un problema tecnico. Acuerdos + Estado: Comfirmacion por wsp",s4:"",mon_hab_com:100,mon_sondeo_nota:50,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:100,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:75,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:40,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:73},
+{mes:"Mayo 2026",trainer:"STEPH",agente:"JIMENEZ GUERRA CARLOS DAVID",correo:"carlos.guerra@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:7,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"Fecha: 8//2026 URLTr: Presencial £️ Speech: No se menciona complemento colegiatura, incremento anual ni beneficios por referidos ¡️ Objeciones: No se rebatió correctamente la objeción principal. El prospecto indicó que el título recién estaría listo en 3 meses y aun así la llamada continuó forma informativa, sin validar viabilidad inmediata matrícula. ¤ Cierre: No hubo cierre comercial. No se busc...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Menciona complemento colegiatura. Le falta mencionar incremento anual y beneficios por referidos ¡️ Objeciones: Las objeciones económicas se manejaron forma parcial. Faltó mayor firmeza y control para llevar al prospecto hacia una acción inmediata, evitando derivar la llamada solo a información o WhatsApp. ¤ Cierre: No hubo un cierre comercial sólido. Se ...",s3:"Fecha: //2026 URLTr: Presencial Producto: Buen dominio SUNEDU, reconocimiento del título y beneficios como jornada intensiva y servicio social. Sin embargo, se brindó demasiada información técnica, generando monólogos extensos que alejaron la llamada del objetivo comercial. Reforzar conceptos clave: reconocimiento del título ante SUNEDU, semana descanso entre bimestres y tiempos reales titulación....",s4:"",mon_hab_com:100,mon_sondeo_nota:43,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:18,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:50,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:35,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:50},
+{mes:"Mayo 2026",trainer:"STEPH",agente:"FAJARDO BALDEON TATIANA ESTEFANIA",correo:"tatiana.fajardo@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:1,v3:2,v4:0,v5:0,cierre:3,cumpl:75,matriculas:0,obs:"",s1:"Fecha: 6//2026 URLTr: Presencial £️ Speech: Menciona el complemento colegiatura y el beneficio por referidos. Le falta incluir el incremento anual Producto: Buen dominio del producto y correcta explicación beneficios, titulación y pagos escalonados. Falta personalizar más la propuesta valor según la experiencia previa y objetivo profesional del prospecto. ¡️ Objeciones: Manejaste bien la objeción ...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Menciona el complemento colegiatura, pero le falta mencionar el incremento anual y beneficios por referidos ¡️ Objeciones: Se intentó rebatir las objeciones tiempo y economía, pero faltó mayor firmeza y control para evitar que el prospecto postergue la decisión (“inicio en septiembre” / “tema económico”). ¤ Cierre: No hubo un cierre comercial sólido. Se d...",s3:"Fecha: //2026 URLTr: Meet £️ Speech: Solo menciona complemento colegiatura. Le falta mencionar incremento anual y beneficios por referidos Producto: Buen dominio general del speech y manejo dudas técnicas. Corregir información clave: mencionar siempre el nombre completo la universidad, validar que el descuento por pronto pago es solo 5%, aclarar que la apostilla se tramita a solicitud del alumno y...",s4:"",mon_hab_com:100,mon_sondeo_nota:66,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:75,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:83,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:46,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:71},
+{mes:"Mayo 2026",trainer:"STEPH",agente:"URQUIZA FARID ISRAEL",correo:"farid.urquiza@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:7,v1:0,v2:1,v3:0,v4:0,v5:0,cierre:1,cumpl:14,matriculas:0,obs:"",s1:"Fecha: 8//2026 URLTr: Presencial £️ Speech: Solo menciona el complemento colegiatura. Le falta incluir incremento anual y beneficio referidos ¡️ Objeciones: El asesor intentó manejar la objeción “lo voy a evaluar”, pero cedió muy rápido sin aislar la verdadera barrera ni reforzar urgencia comercial. Faltó condicionar los beneficios al envío inmediato del DNI. ¤ Cierre: No hubo un cierre comercial ...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Menciona complemento colegiatura e incremento anual. Falta mencionar beneficios por referidos ¡️ Objeciones: El asesor manejó parcialmente las objeciones, pero cedió rápido ante el “lo voy a evaluar” sin profundizar en la verdadera duda del prospecto ni reforzar el valor del beneficio vigente. ¤ Cierre: El cierre perdió fuerza por no condicionar los descu...",s3:"Fecha: //2026 URLTr: Presencial £️ Speech: No se menciona complemento colegiatura, incremento anual ni beneficios por referidos ¡️ Objeciones: El asesor manejó parcialmente la objeción del tercero decisor (“debo hablar con mis padres”), pero faltó generar mayor urgencia y compromiso comercial condicionando el beneficio al envío inmediato del DNI. ¤ Cierre: No hubo un cierre comercial sólido. La ll...",s4:"",mon_hab_com:100,mon_sondeo_nota:100,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:25,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:41,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:26,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:59},
+{mes:"Mayo 2026",trainer:"STEPH",agente:"MORALES GARCIA YESENIA ELIZABETH",correo:"elizabeth.morales@utel.edu.mx",supervisor:"LÓPEZ HUALLPA VICTOR RAUL",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:7,v1:0,v2:3,v3:0,v4:0,v5:0,cierre:3,cumpl:43,matriculas:0,obs:"",s1:"Fecha: 7//2026 URLTr: Presencial £️ Speech: Menciona complemento colegiatura, pero no el incremento anual ni beneficio por referidos ¡️ Objeciones: El manejo objeciones fue limitado por falta sondeo profundo y personalización. Se mencionaron beneficios forma general sin conectar directamente con las necesidades o motivadores del prospecto. ¤ Cierre: No hubo un cierre comercial sólido. Faltó condic...",s2:"Fecha: //2026 URLTr: Presencial £️ Speech: Menciona complemento colegiatura, pero no el incremento anual ni beneficios por referidos ¡️ Objeciones: El manejo objeciones fue débil por falta sondeo profundo y aislamiento dudas reales. Se derivó rápidamente al WhatsApp sin identificar si la principal barrera era tiempo, inversión o disponibilidad. ¤ Cierre: No hubo un cierre comercial firme. Faltó co...",s3:"",s4:"",mon_hab_com:100,mon_sondeo_nota:25,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:33,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:66,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:40,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:53}
+,
+{mes:"Marzo 2026",trainer:"KAREN",agente:"ACOSTA CORREA JAIR FRANCISCO",correo:"jair.acosta@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:0,v2:0,v3:0,v4:1,v5:0,cierre:1,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Marzo 2026",trainer:"KAREN",agente:"CUEVA RIVERA JOSEPH ANDRÉ",correo:"joseph.cueva@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"KAREN",agente:"CONCHUCOS GÜERE DE URQUIAGA YESENIA ANALI",correo:"yesenia.conchucos@utel.edu.mx",supervisor:"CUBILLOS RUIZ ANA RAQUEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"DM por 33 dias, regresa el 28/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"TASAYCO LETONA HILDA LUZ",correo:"hilda.tasayco@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:1,v3:0,v4:0,v5:0,cierre:1,cumpl:13,matriculas:0,obs:"Renuncia, trabajó hasta el 16/04. Provincia.",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"SILVA CUELLAR LIDIA",correo:"lidia.silva@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"No renovación 30/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"STEPH",agente:"PAIVA PISFIL RUBÍ DE LOS ANGELES",correo:"rubi.paiva@utel.edu.mx",supervisor:"NANO QUIÑONEZ ELTHON JOHN",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:8,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Renuncia 22/04",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"PACHECO CORDOVA CARLA ISABEL",correo:"carla.pacheco@utel.edu.mx",supervisor:"IPANAQUE MEDINA EBERTH GABRIEL",coordinador:"CHINGA PAZ JHONN ALEXIS",meta:4,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"Asesora renuncia por indicar que no comisiona",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null},
+{mes:"Abril 2026",trainer:"SEBAS",agente:"FAJARDO BALDEON TATIANA ESTEFANIA",correo:"tatiana.fajardo@utel.edu.mx",supervisor:"TORRES CHIRITO WILLMER ALEXANDER",coordinador:"ORTIZ CONTRERAS KATHERINNE ELIZABETH",meta:0,v1:0,v2:0,v3:0,v4:0,v5:0,cierre:0,cumpl:0,matriculas:0,obs:"DM",s1:"",s2:"",s3:"",s4:"",mon_hab_com:null,mon_sondeo_nota:null,mon_s1:null,mon_s2:null,mon_s3:null,mon_s4:null,mon_personal_nota:null,mon_p1:null,mon_p2:null,mon_p3:null,mon_p4:null,mon_obj_nota:null,mon_o1:null,mon_o2:null,mon_o3:null,mon_o4:null,mon_cierre_nota:null,mon_c1:null,mon_c2:null,mon_c3:null,mon_c4:null,mon_c5:null,mon_nota_final:null}
+];
+
+const MESES = ["Febrero 2026","Marzo 2026","Abril 2026","Mayo 2026"];
+const CHARTS = {};
+
+// =============================================
+// UTILS
+// =============================================
+function semaforo(c){return c>=80?'green':c>=50?'yellow':'red'}
+function semDot(c){const s=semaforo(c);return`<span class="dot dot-${s}"></span>${c}%`}
+function semBadge(c){const s=semaforo(c);const lbl=s==='green'?'🟢 Verde':s==='yellow'?'🟡 Amarillo':'🔴 Rojo';return`<span class="badge badge-${s}">${lbl}</span>`}
+function scChip(v,lbl){if(v===null||v===undefined)return`<span class="score-chip sc-none">—</span>`;const cls=v>=80?'sc-green':v>=50?'sc-yellow':'sc-red';return`<span class="score-chip ${cls}" title="${lbl||''}">${v}</span>`}
+function obsBadges(obs){if(!obs)return'';let r='';if(/renuncia/i.test(obs))r+=`<span class="badge badge-warn">⚠️ BAJA</span> `;if(/baja/i.test(obs)&&!/renuncia/i.test(obs))r+=`<span class="badge badge-warn">⚠️ BAJA</span> `;if(/no renov/i.test(obs))r+=`<span class="badge badge-norenew">❌ NO RENO.</span> `;return r}
+
+function recurMap(){
+  const m={};
+  RAW_DATA.forEach(r=>{
+    if(!m[r.correo])m[r.correo]={meses:[],agente:r.agente};
+    if(!m[r.correo].meses.includes(r.mes))m[r.correo].meses.push(r.mes);
+  });
+  return m;
+}
+const RECUR = recurMap();
+
+function mkChart(id,config){
+  if(CHARTS[id])CHARTS[id].destroy();
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  CHARTS[id]=new Chart(ctx,config);
+}
+
+function miniBarsSVG(v1,v2,v3,v4,v5,meta){
+  const vals=[v1,v2,v3,v4,v5];
+  const mx=Math.max(...vals,1);
+  return`<div class="mini-bars">${vals.map(v=>{
+    const h=Math.max(2,Math.round((v/mx)*22));
+    const c=semaforo(meta>0?Math.round((v/meta)*100*5):0);
+    const col=c==='green'?'#06b706':c==='yellow'?'#ffb937':'#ff4444';
+    return`<div class="mini-bar" style="height:${h}px;background:${col}"></div>`;
+  }).join('')}</div>`;
+}
+
+// =============================================
+// FILTER HELPERS
+// =============================================
+function unique(arr){return[...new Set(arr.filter(Boolean))].sort()}
+
+function populateAllFilters(){
+  const meses=MESES;
+  const trainers=unique(RAW_DATA.map(r=>r.trainer));
+  const sups=unique(RAW_DATA.map(r=>r.supervisor));
+  const coords=unique(RAW_DATA.map(r=>r.coordinador||'(Sin asignar)'));
+
+  function fill(id,opts){
+    const el=document.getElementById(id);
+    if(!el)return;
+    // only populate once (avoid duplicates on re-call)
+    const cur=el.value;
+    // keep first "Todos" option, remove any dynamic ones, then re-add
+    while(el.options.length>1)el.remove(1);
+    opts.forEach(o=>{
+      const opt=document.createElement('option');
+      opt.value=o;opt.textContent=o;
+      el.appendChild(opt);
+    });
+    if([...el.options].some(o=>o.value===cur))el.value=cur;
+  }
+  ['f1-mes','f2-mes','f4-mes','f5-mes'].forEach(id=>fill(id,meses));
+  ['f1-trainer','f4-trainer','f5-trainer'].forEach(id=>fill(id,trainers));
+  ['f1-sup','f2-sup','f3-sup','f5-sup'].forEach(id=>fill(id,sups));
+  ['f1-coord','f2-coord','f5-coord'].forEach(id=>fill(id,coords));
+}
+
+function gv(id){const el=document.getElementById(id);return el?el.value:'';}
+
+function filterData(pref){
+  const mes=gv(`f${pref}-mes`);
+  const trainer=gv(`f${pref}-trainer`);
+  const sup=gv(`f${pref}-sup`);
+  const coord=gv(`f${pref}-coord`);
+  const sem=gv(`f${pref}-sem`);
+  const agTxt=(gv(`f${pref}-ag`)||'').toLowerCase();
+  return RAW_DATA.filter(r=>{
+    if(mes&&r.mes!==mes)return false;
+    if(trainer&&r.trainer!==trainer)return false;
+    if(sup&&r.supervisor!==sup)return false;
+    if(coord&&(r.coordinador||'(Sin asignar)')!==coord)return false;
+    if(sem&&semaforo(r.cumpl)!==sem)return false;
+    if(agTxt&&!r.agente.toLowerCase().includes(agTxt))return false;
+    return true;
+  });
+}
+
+function clearFilters(pref){
+  ['mes','trainer','sup','coord','sem'].forEach(f=>{const el=document.getElementById(`f${pref}-${f}`);if(el)el.value='';});
+  ['ag'].forEach(f=>{const el=document.getElementById(`f${pref}-${f}`);if(el)el.value='';});
+  if(pref==='1')renderPerformance();
+  if(pref==='2')renderLeader();
+  if(pref==='3')renderTrendAgent();
+  if(pref==='4')renderSessions();
+  if(pref==='5')renderMonitoring();
+}
+
+// =============================================
+// VIEW NAVIGATION
+// =============================================
+function showView(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  if(id==='v2')renderLeader();
+  if(id==='v3'){renderTrendAgent();renderTrendLeader();renderTrendGlobal();}
+  if(id==='v4')renderSessions();
+  if(id==='v5')renderMonitoring();
+}
+
+function showSubTab(id,el){
+  document.querySelectorAll('#v3 .subview').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('#v3 .stab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`sub-${id}`).classList.add('active');
+  el.classList.add('active');
+  if(id==='li')renderTrendLeader();
+  if(id==='gl')renderTrendGlobal();
+}
+
+function showMonSubTab(id,el){
+  document.querySelectorAll('#v5 .subview').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('#v5 .stab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`mon-sub-${id}`).classList.add('active');
+  el.classList.add('active');
+  renderMonitoring();
+}
+
+// =============================================
+// VIEW 1 — RENDIMIENTO POR AGENTE
+// =============================================
+function renderPerformance(){
+  const data=filterData('1');
+  // KPIs
+  const total=data.length;
+  const reds=data.filter(r=>semaforo(r.cumpl)==='red').length;
+  const yellows=data.filter(r=>semaforo(r.cumpl)==='yellow').length;
+  const greens=data.filter(r=>semaforo(r.cumpl)==='green').length;
+  const totalV=data.reduce((a,r)=>a+r.cierre,0);
+  const totalM=data.reduce((a,r)=>a+r.meta,0);
+  const cumplGlobal=totalM>0?Math.round(totalV/totalM*100):0;
+  const recurCount=unique(data.map(r=>r.correo)).filter(c=>RECUR[c]&&RECUR[c].meses.length>=2).length;
+
+  document.getElementById('kpi1').innerHTML=`
+    <div class="kpi-card"><div class="kpi-val">${total}</div><div class="kpi-lbl">Agentes LP</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#ff4444">${reds}</div><div class="kpi-lbl">🔴 Rojo</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#e6a820">${yellows}</div><div class="kpi-lbl">🟡 Amarillo</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#06b706">${greens}</div><div class="kpi-lbl">🟢 Verde</div></div>
+    <div class="kpi-card"><div class="kpi-val">${totalV}</div><div class="kpi-lbl">Total Ventas</div></div>
+    <div class="kpi-card"><div class="kpi-val">${totalM}</div><div class="kpi-lbl">Total Meta</div></div>
+    <div class="kpi-card"><div class="kpi-val">${cumplGlobal}%</div><div class="kpi-lbl">Cumpl. Global</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#ffb937">${recurCount}</div><div class="kpi-lbl">Recurrentes</div></div>
+  `;
+
+  // Table
+  const tb=document.getElementById('tbody1');
+  tb.innerHTML='';
+  data.forEach(r=>{
+    const rec=RECUR[r.correo];
+    const meses=rec?rec.meses:[];
+    const mesesBadges=meses.map(m=>`<span class="badge badge-mes">${m.split(' ')[0].substring(0,3)}</span>`).join(' ');
+    const isRecur=meses.length>=2;
+    const recurBadge=isRecur?`<span class="badge badge-recur">${meses.length} meses LP</span>`:`<span class="badge badge-gray">1er mes</span>`;
+    tb.innerHTML+=`<tr>
+      <td><strong>${r.agente}</strong></td>
+      <td>${r.trainer}</td>
+      <td>${r.supervisor}</td>
+      <td>${r.coordinador||'(Sin asignar)'}</td>
+      <td>${mesesBadges}</td>
+      <td>${r.meta}</td>
+      <td>${r.v1}</td><td>${r.v2}</td><td>${r.v3}</td><td>${r.v4}</td><td>${r.v5}</td>
+      <td><strong>${r.cierre}</strong></td>
+      <td>${semDot(r.cumpl)}</td>
+      <td>${semBadge(r.cumpl)}</td>
+      <td>${miniBarsSVG(r.v1,r.v2,r.v3,r.v4,r.v5,r.meta)}</td>
+      <td>${recurBadge}</td>
+    </tr>`;
+  });
+}
+
+// =============================================
+// VIEW 2 — ACUMULATIVO POR LÍDER
+// =============================================
+function renderLeader(){
+  const data=filterData('2');
+
+  // By coordinador
+  const byCoord={};
+  data.forEach(r=>{
+    const k=r.coordinador||'(Sin asignar)';
+    if(!byCoord[k])byCoord[k]={liders:new Set(),agentes:0,v:0,m:0,red:0,yellow:0,green:0};
+    byCoord[k].liders.add(r.supervisor);
+    byCoord[k].agentes++;
+    byCoord[k].v+=r.cierre;
+    byCoord[k].m+=r.meta;
+    const s=semaforo(r.cumpl);
+    byCoord[k][s]++;
+  });
+
+  const tb2a=document.getElementById('tbody2a');
+  tb2a.innerHTML='';
+  Object.entries(byCoord).forEach(([k,v])=>{
+    const cumpl=v.m>0?Math.round(v.v/v.m*100):0;
+    tb2a.innerHTML+=`<tr>
+      <td><strong>${k}</strong></td><td>${v.liders.size}</td><td>${v.agentes}</td>
+      <td>${v.v}</td><td>${v.m}</td><td>${semDot(cumpl)}</td>
+      <td>${v.red}</td><td>${v.yellow}</td><td>${v.green}</td>
+      <td>${semBadge(cumpl)}</td>
+    </tr>`;
+  });
+
+  // By supervisor
+  const bySup={};
+  data.forEach(r=>{
+    const k=r.supervisor;
+    if(!bySup[k])bySup[k]={coord:r.coordinador||'(Sin asignar)',agentes:0,v:0,m:0,red:0,yellow:0,green:0};
+    bySup[k].agentes++;
+    bySup[k].v+=r.cierre;
+    bySup[k].m+=r.meta;
+    const s=semaforo(r.cumpl);
+    bySup[k][s]++;
+  });
+
+  const tb2b=document.getElementById('tbody2b');
+  tb2b.innerHTML='';
+  let tv=0,tm=0,ta=0,tr=0,ty=0,tg=0;
+  Object.entries(bySup).forEach(([k,v])=>{
+    const cumpl=v.m>0?Math.round(v.v/v.m*100):0;
+    tv+=v.v;tm+=v.m;ta+=v.agentes;tr+=v.red;ty+=v.yellow;tg+=v.green;
+    tb2b.innerHTML+=`<tr>
+      <td><strong>${k}</strong></td><td>${v.coord}</td><td>${v.agentes}</td>
+      <td>${v.v}</td><td>${v.m}</td><td>${semDot(cumpl)}</td>
+      <td>${v.red}</td><td>${v.yellow}</td><td>${v.green}</td>
+      <td>${semBadge(cumpl)}</td>
+    </tr>`;
+  });
+  const totCumpl=tm>0?Math.round(tv/tm*100):0;
+  tb2b.innerHTML+=`<tr class="total-row">
+    <td colspan="2">TOTAL GENERAL</td><td>${ta}</td>
+    <td>${tv}</td><td>${tm}</td><td>${totCumpl}%</td>
+    <td>${tr}</td><td>${ty}</td><td>${tg}</td><td>${semBadge(totCumpl)}</td>
+  </tr>`;
+}
+
+// =============================================
+// VIEW 3 — TENDENCIAS
+// =============================================
+function renderTrendAgent(){
+  const supF=gv('f3-sup');
+  const agTxt=(gv('f3-ag')||'').toLowerCase();
+  const recurF=gv('f3-recur');
+
+  const byAgent={};
+  RAW_DATA.forEach(r=>{
+    if(supF&&r.supervisor!==supF)return;
+    if(agTxt&&!r.agente.toLowerCase().includes(agTxt))return;
+    if(!byAgent[r.correo])byAgent[r.correo]={agente:r.agente,registros:[]};
+    byAgent[r.correo].registros.push(r);
+  });
+
+  const container=document.getElementById('trend-ag-cards');
+  container.innerHTML='';
+
+  const COLORS=['#06b706','#ffb937','#0066cc','#cc3300','#9900cc'];
+
+  Object.entries(byAgent).forEach(([correo,info],idx)=>{
+    const rec=RECUR[correo];
+    const meses=rec?rec.meses:[];
+    if(recurF==='si'&&meses.length<2)return;
+
+    const isRecur=meses.length>=2;
+    const card=document.createElement('div');
+    card.className='agent-card';
+
+    const cumplChips=info.registros.map(r=>{
+      const s=semaforo(r.cumpl);
+      const col=s==='green'?'#06b706':s==='yellow'?'#ffb937':'#ff4444';
+      return`<span style="background:${col};color:${s==='yellow'?'#000':'#fff'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:2px;display:inline-block">${r.mes.split(' ')[0]}: ${r.cumpl}%</span>`;
+    }).join('');
+
+    card.innerHTML=`
+      <div class="agent-card-head">
+        ${info.agente}
+        ${isRecur?`<span class="badge badge-recur">${meses.length} meses LP</span>`:''}
+      </div>
+      <div class="agent-card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+          <div><h4 style="font-size:11px;font-weight:700;margin-bottom:6px;text-transform:uppercase">Cierre vs Meta por mes</h4><canvas id="ch-ag-${idx}-1" height="180"></canvas></div>
+          <div><h4 style="font-size:11px;font-weight:700;margin-bottom:6px;text-transform:uppercase">Ventas semanales por mes</h4><canvas id="ch-ag-${idx}-2" height="180"></canvas></div>
+        </div>
+        <div>${cumplChips}</div>
+      </div>`;
+    container.appendChild(card);
+
+    // Chart 1: Cierre vs Meta
+    setTimeout(()=>{
+      const mesesR=info.registros.map(r=>r.mes.split(' ')[0].substring(0,3));
+      mkChart(`ch-ag-${idx}-1`,{type:'bar',data:{
+        labels:mesesR,
+        datasets:[
+          {label:'Cierre',data:info.registros.map(r=>r.cierre),backgroundColor:info.registros.map(r=>{const s=semaforo(r.cumpl);return s==='green'?'#06b706':s==='yellow'?'#ffb937':'#ff4444'}),order:2},
+          {label:'Meta',data:info.registros.map(r=>r.meta),backgroundColor:'#1c2d1a',order:2}
+        ]
+      },options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}}}});
+
+      // Chart 2: Weekly bars
+      const semLabels=[];const semData=[];
+      const colors=info.registros.map((_,i)=>COLORS[i%COLORS.length]);
+      info.registros.forEach((r,ri)=>{
+        ['S1','S2','S3','S4','S5'].forEach((s,si)=>{
+          semLabels.push(`${r.mes.split(' ')[0].substring(0,3)} ${s}`);
+          semData.push([r.v1,r.v2,r.v3,r.v4,r.v5][si]);
+        });
+      });
+      const bkgs=[];
+      info.registros.forEach((r,ri)=>{
+        for(let i=0;i<5;i++)bkgs.push(colors[ri]);
+      });
+      mkChart(`ch-ag-${idx}-2`,{type:'bar',data:{
+        labels:semLabels,
+        datasets:[{label:'Ventas',data:semData,backgroundColor:bkgs}]
+      },options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+    },50);
+  });
+
+  if(container.innerHTML===''){
+    container.innerHTML='<p style="padding:20px;color:#888">No se encontraron agentes con los filtros seleccionados.</p>';
+  }
+}
+
+function renderTrendLeader(){
+  const sups=unique(RAW_DATA.map(r=>r.supervisor));
+  const colors=['#06b706','#ffb937','#0066cc','#cc3300','#9900cc','#ff6600','#009999'];
+
+  // ch-li1: cumpl% por mes por supervisor
+  const li1Data=MESES.map(mes=>{
+    return sups.map(sup=>{
+      const rows=RAW_DATA.filter(r=>r.mes===mes&&r.supervisor===sup);
+      const tv=rows.reduce((a,r)=>a+r.cierre,0);
+      const tm=rows.reduce((a,r)=>a+r.meta,0);
+      return tm>0?Math.round(tv/tm*100):null;
+    });
+  });
+  mkChart('ch-li1',{type:'line',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:sups.map((sup,i)=>({label:sup.split(' ')[0],data:MESES.map((_,mi)=>li1Data[mi][i]),borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length]+'33',tension:0.3,fill:false}))
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,max:200}}}});
+
+  // ch-li2: ventas por mes
+  mkChart('ch-li2',{type:'bar',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:sups.map((sup,i)=>({label:sup.split(' ')[0],data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&r.supervisor===sup).reduce((a,r)=>a+r.cierre,0)),backgroundColor:colors[i%colors.length]}))
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+
+  // ch-li3: agentes LP
+  mkChart('ch-li3',{type:'bar',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:sups.map((sup,i)=>({label:sup.split(' ')[0],data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&r.supervisor===sup).length),backgroundColor:colors[i%colors.length]}))
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+
+  // ch-li4: semaforo apilado
+  mkChart('ch-li4',{type:'bar',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:[
+      {label:'🔴 Rojo',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&semaforo(r.cumpl)==='red').length),backgroundColor:'#ff4444'},
+      {label:'🟡 Amarillo',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&semaforo(r.cumpl)==='yellow').length),backgroundColor:'#ffb937'},
+      {label:'🟢 Verde',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&semaforo(r.cumpl)==='green').length),backgroundColor:'#06b706'}
+    ]
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
+}
+
+function renderTrendGlobal(){
+  // ch-gl1: ventas vs meta + cumpl%
+  const ventasPorMes=MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes).reduce((a,r)=>a+r.cierre,0));
+  const metaPorMes=MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes).reduce((a,r)=>a+r.meta,0));
+  const cumplPorMes=MESES.map((_,i)=>metaPorMes[i]>0?Math.round(ventasPorMes[i]/metaPorMes[i]*100):0);
+  mkChart('ch-gl1',{type:'bar',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:[
+      {label:'Cierre',data:ventasPorMes,backgroundColor:'#06b706',yAxisID:'y'},
+      {label:'Meta',data:metaPorMes,backgroundColor:'#1c2d1a',yAxisID:'y'},
+      {label:'Cumpl.%',data:cumplPorMes,type:'line',borderColor:'#ffb937',backgroundColor:'#ffb93733',yAxisID:'y2',tension:0.3}
+    ]
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true},y2:{beginAtZero:true,position:'right',max:200,grid:{drawOnChartArea:false}}}}});
+
+  // ch-gl2: semanales acumuladas
+  const semTotals=['v1','v2','v3','v4','v5'].map(k=>RAW_DATA.reduce((a,r)=>a+r[k],0));
+  mkChart('ch-gl2',{type:'bar',data:{
+    labels:['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5'],
+    datasets:[{label:'Ventas',data:semTotals,backgroundColor:['#06b706','#2ab02a','#4fc44f','#74d874','#99ec99']}]
+  },options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+
+  // ch-gl3: semaforo
+  mkChart('ch-gl3',{type:'bar',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:[
+      {label:'🔴 Rojo',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&semaforo(r.cumpl)==='red').length),backgroundColor:'#ff4444'},
+      {label:'🟡 Amarillo',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&semaforo(r.cumpl)==='yellow').length),backgroundColor:'#ffb937'},
+      {label:'🟢 Verde',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes&&semaforo(r.cumpl)==='green').length),backgroundColor:'#06b706'}
+    ]
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}}});
+
+  // ch-gl4: agentes LP por mes
+  mkChart('ch-gl4',{type:'bar',data:{
+    labels:MESES.map(m=>m.split(' ')[0].substring(0,3)),
+    datasets:[{label:'Agentes LP',data:MESES.map(mes=>RAW_DATA.filter(r=>r.mes===mes).length),backgroundColor:'#06b706'}]
+  },options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+}
+
+// =============================================
+// VIEW 4 — SESIONES TRAINER
+// =============================================
+function renderSessions(){
+  const mes=gv('f4-mes');
+  const trainer=gv('f4-trainer');
+  const agTxt=(gv('f4-ag')||'').toLowerCase();
+
+  const data=RAW_DATA.filter(r=>{
+    if(mes&&r.mes!==mes)return false;
+    if(trainer&&r.trainer!==trainer)return false;
+    if(agTxt&&!r.agente.toLowerCase().includes(agTxt))return false;
+    const hasSess=r.s1||r.s2||r.s3||r.s4||r.obs;
+    return hasSess;
+  });
+
+  const cont=document.getElementById('sess-cards');
+  cont.innerHTML='';
+  if(!data.length){cont.innerHTML='<p style="padding:20px;color:#888">No hay sesiones o comentarios registrados para los filtros seleccionados.</p>';return;}
+
+  data.forEach(r=>{
+    const s=semaforo(r.cumpl);
+    const col=s==='green'?'#06b706':s==='yellow'?'#ffb937':'#ff4444';
+    const fgcol=s==='yellow'?'#000':'#fff';
+    const ob=obsBadges(r.obs);
+
+    const sessHtml=[r.s1,r.s2,r.s3,r.s4].map((sess,i)=>{
+      if(!sess)return'';
+      if(sess.startsWith('http')){
+        return`<div class="sess-link">🔗 <strong>Sesión ${i+1}:</strong> <a href="${sess}" target="_blank">${sess}</a></div>`;
+      }
+      return`<div class="sess-text"><strong>Sesión ${i+1}:</strong> ${sess}</div>`;
+    }).join('');
+
+    cont.innerHTML+=`<div class="sess-card">
+      <div class="sess-head">
+        <span>${r.agente}</span>
+        <span style="background:${col};color:${fgcol};padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">${r.cumpl}%</span>
+        <span style="font-size:11px;opacity:.8">${r.trainer} · ${r.mes}</span>
+      </div>
+      <div class="sess-body">
+        ${r.obs?`<div class="sess-obs">${ob}${r.obs}</div>`:''}
+        ${sessHtml||'<p style="color:#aaa;font-size:12px">Sin sesiones registradas</p>'}
+      </div>
+    </div>`;
+  });
+}
+
+// =============================================
+// VIEW 5 — MONITOREO DIAGNÓSTICO
+// =============================================
+const MON_CATS=[
+  {key:'mon_hab_com',label:'Hab.Com.'},
+  {key:'mon_sondeo_nota',label:'Sondeo'},
+  {key:'mon_personal_nota',label:'Personal.'},
+  {key:'mon_obj_nota',label:'Objeciones'},
+  {key:'mon_cierre_nota',label:'Cierre'},
+  {key:'mon_nota_final',label:'Final'}
+];
+
+function renderMonitoring(){
+  const mes=gv('f5-mes');
+  const coord=gv('f5-coord');
+  const sup=gv('f5-sup');
+  const trainer=gv('f5-trainer');
+  const agTxt=(gv('f5-ag')||'').toLowerCase();
+
+  const data=RAW_DATA.filter(r=>{
+    if(mes&&r.mes!==mes)return false;
+    if(coord&&(r.coordinador||'(Sin asignar)')!==coord)return false;
+    if(sup&&r.supervisor!==sup)return false;
+    if(trainer&&r.trainer!==trainer)return false;
+    if(agTxt&&!r.agente.toLowerCase().includes(agTxt))return false;
+    return true;
+  });
+
+  const hasMonitoring=r=>MON_CATS.some(c=>r[c.key]!==null&&r[c.key]!==undefined);
+  const conMon=data.filter(hasMonitoring).length;
+  const sinMon=data.length-conMon;
+  const finals=data.filter(r=>r.mon_nota_final!==null&&r.mon_nota_final!==undefined).map(r=>r.mon_nota_final);
+  const avgFinal=finals.length>0?(finals.reduce((a,b)=>a+b,0)/finals.length).toFixed(1):'—';
+
+  document.getElementById('kpi5').innerHTML=`
+    <div class="kpi-card"><div class="kpi-val">${data.length}</div><div class="kpi-lbl">Total Agentes</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#06b706">${conMon}</div><div class="kpi-lbl">Con Monitoreo</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#ff4444">${sinMon}</div><div class="kpi-lbl">Sin Monitoreo</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#ffb937">⭐ ${avgFinal}</div><div class="kpi-lbl">Nota Final Prom.</div></div>
+  `;
+
+  // Sub — Por Agente
+  const tb5=document.getElementById('tbody5');
+  tb5.innerHTML='';
+  data.forEach(r=>{
+    tb5.innerHTML+=`<tr>
+      <td><strong>${r.agente}</strong></td>
+      <td>${r.coordinador||'(Sin asignar)'}</td>
+      <td>${r.supervisor}</td>
+      <td>${r.trainer}</td>
+      <td>${r.mes.split(' ')[0].substring(0,3)}</td>
+      <td>${scChip(r.mon_hab_com,'Hab. Comunicativas')}</td>
+      <td>${scChip(r.mon_sondeo_nota,'Sondeo')}</td>
+      <td>${scChip(r.mon_personal_nota,'Personalización')}</td>
+      <td>${scChip(r.mon_obj_nota,'Manejo de Objeciones')}</td>
+      <td>${scChip(r.mon_cierre_nota,'Cierre')}</td>
+      <td>${scChip(r.mon_nota_final,'Nota Final')}</td>
+    </tr>`;
+  });
+
+  // Detail cards
+  const detailCont=document.getElementById('mon-detail-cards');
+  detailCont.innerHTML='';
+  data.filter(hasMonitoring).forEach(r=>{
+    const fn=r.mon_nota_final;
+    const fnColor=fn>=8?'#06b706':fn>=6?'#ffb937':'#ff4444';
+    detailCont.innerHTML+=`<div class="mon-card">
+      <div class="mon-head">
+        ${r.agente} <span style="font-size:11px;font-weight:400;opacity:.7">· ${r.trainer} · ${r.mes}</span>
+      </div>
+      <div class="mon-body">
+        <div style="display:flex;align-items:center">
+          <div class="mon-nota-big" style="color:${fnColor}">${fn!==null?fn:'—'}</div>
+          <div style="font-size:11px;color:#666">Nota Final<br>${semBadge(r.cumpl)}</div>
+        </div>
+        <div class="mon-cat">
+          <div class="mon-cat-title">Diagnóstico por categoría</div>
+          <div class="mon-items">
+            ${MON_CATS.slice(0,-1).map(c=>`<span>${c.label}: ${scChip(r[c.key],c.label)}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Sub — Por Líder
+  const bySup2={};
+  data.filter(hasMonitoring).forEach(r=>{
+    const k=r.supervisor;
+    if(!bySup2[k])bySup2[k]={n:0,hab:0,sondeo:0,personal:0,obj:0,cierre:0,final:0,hN:0,sN:0,pN:0,oN:0,cN:0,fN:0};
+    const d=bySup2[k];d.n++;
+    const add=(key,sum,cnt)=>{if(r[key]!==null){d[sum]+=r[key];d[cnt]++;}};
+    add('mon_hab_com','hab','hN');add('mon_sondeo_nota','sondeo','sN');
+    add('mon_personal_nota','personal','pN');add('mon_obj_nota','obj','oN');
+    add('mon_cierre_nota','cierre','cN');add('mon_nota_final','final','fN');
+  });
+  const tb5b=document.getElementById('tbody5b');
+  tb5b.innerHTML='';
+  const supsArr=Object.entries(bySup2);
+  supsArr.forEach(([k,v])=>{
+    const avg=(sum,cnt)=>cnt>0?(sum/cnt).toFixed(1):null;
+    tb5b.innerHTML+=`<tr>
+      <td><strong>${k}</strong></td>
+      <td>${scChip(avg(v.hab,v.hN)?parseFloat(avg(v.hab,v.hN)):null)}</td>
+      <td>${scChip(avg(v.sondeo,v.sN)?parseFloat(avg(v.sondeo,v.sN)):null)}</td>
+      <td>${scChip(avg(v.personal,v.pN)?parseFloat(avg(v.personal,v.pN)):null)}</td>
+      <td>${scChip(avg(v.obj,v.oN)?parseFloat(avg(v.obj,v.oN)):null)}</td>
+      <td>${scChip(avg(v.cierre,v.cN)?parseFloat(avg(v.cierre,v.cN)):null)}</td>
+      <td>${scChip(avg(v.final,v.fN)?parseFloat(avg(v.final,v.fN)):null)}</td>
+    </tr>`;
+  });
+
+  // Chart por líder
+  const catLabels=['Hab.Com.','Sondeo','Personal.','Objeciones','Cierre','Final'];
+  const catKeys=['hab','sondeo','personal','obj','cierre','final'];
+  const catCnts=['hN','sN','pN','oN','cN','fN'];
+  const LCOLORS=['#06b706','#ffb937','#0066cc','#cc3300','#9900cc','#ff6600','#009999'];
+  mkChart('ch-mon-li',{type:'bar',data:{
+    labels:catLabels,
+    datasets:supsArr.map(([k,v],i)=>({
+      label:k.split(' ')[0],
+      data:catKeys.map((c,ci)=>v[catCnts[ci]]>0?(v[c]/v[catCnts[ci]]).toFixed(1):0),
+      backgroundColor:LCOLORS[i%LCOLORS.length]
+    }))
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,max:100}}}});
+
+  // Sub — Por Coordinador
+  const byCoord2={};
+  data.filter(hasMonitoring).forEach(r=>{
+    const k=r.coordinador||'(Sin asignar)';
+    if(!byCoord2[k])byCoord2[k]={n:0,hab:0,sondeo:0,personal:0,obj:0,cierre:0,final:0,hN:0,sN:0,pN:0,oN:0,cN:0,fN:0};
+    const d=byCoord2[k];d.n++;
+    const add=(key,sum,cnt)=>{if(r[key]!==null){d[sum]+=r[key];d[cnt]++;}};
+    add('mon_hab_com','hab','hN');add('mon_sondeo_nota','sondeo','sN');
+    add('mon_personal_nota','personal','pN');add('mon_obj_nota','obj','oN');
+    add('mon_cierre_nota','cierre','cN');add('mon_nota_final','final','fN');
+  });
+  const tb5c=document.getElementById('tbody5c');
+  tb5c.innerHTML='';
+  const coordArr=Object.entries(byCoord2);
+  coordArr.forEach(([k,v])=>{
+    const avg=(sum,cnt)=>cnt>0?(sum/cnt).toFixed(1):null;
+    tb5c.innerHTML+=`<tr>
+      <td><strong>${k}</strong></td>
+      <td>${scChip(avg(v.hab,v.hN)?parseFloat(avg(v.hab,v.hN)):null)}</td>
+      <td>${scChip(avg(v.sondeo,v.sN)?parseFloat(avg(v.sondeo,v.sN)):null)}</td>
+      <td>${scChip(avg(v.personal,v.pN)?parseFloat(avg(v.personal,v.pN)):null)}</td>
+      <td>${scChip(avg(v.obj,v.oN)?parseFloat(avg(v.obj,v.oN)):null)}</td>
+      <td>${scChip(avg(v.cierre,v.cN)?parseFloat(avg(v.cierre,v.cN)):null)}</td>
+      <td>${scChip(avg(v.final,v.fN)?parseFloat(avg(v.final,v.fN)):null)}</td>
+    </tr>`;
+  });
+
+  mkChart('ch-mon-co',{type:'bar',data:{
+    labels:catLabels,
+    datasets:coordArr.map(([k,v],i)=>({
+      label:k.split(' ')[0],
+      data:catKeys.map((c,ci)=>v[catCnts[ci]]>0?(v[c]/v[catCnts[ci]]).toFixed(1):0),
+      backgroundColor:LCOLORS[i%LCOLORS.length]
+    }))
+  },options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,max:100}}}});
+}
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded',()=>{
+  populateAllFilters();
+  renderPerformance();
+});
+</script>
+</body>
+</html>
